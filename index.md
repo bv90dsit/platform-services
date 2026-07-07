@@ -40,3 +40,18 @@ New to the platform? Head to our [Getting Started guide](/platform-services/gett
 ## How we work
 
 We follow a self-service model. You request what you need, we provision it within guardrails that keep things secure and cost-effective. Most services are available within minutes via our Terraform modules.
+
+---
+
+## Contact the team
+
+| Who | Role | Contact |
+|-----|------|---------|
+| Platform Team | General enquiries & support | #platform-support on Slack |
+| Jane Smith | Platform Lead | jane.smith@example.gov.uk |
+| Alex Johnson | Cloud Architect | alex.johnson@example.gov.uk |
+| Sam Patel | DevOps Engineer | sam.patel@example.gov.uk |
+
+**Office hours:** Mon–Fri, 09:00–17:00 GMT
+
+For urgent production issues outside office hours, use the on-call pager via #platform-support.
