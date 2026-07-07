@@ -44,6 +44,41 @@ title: Home
 
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
+<h2 class="govuk-heading-l">AI-assisted access (MCP)</h2>
+
+<p class="govuk-body">If you use an AI coding assistant (Claude Code, Copilot, etc.), you can query and request platform services without leaving your terminal.</p>
+
+<p class="govuk-body">Our MCP server lets your AI assistant:</p>
+
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Find services</strong> — "Does the platform offer a managed Redis?" → instant answer from the catalogue</li>
+  <li><strong>Provision existing services</strong> — "I need an S3 bucket for storing receipts" → checks guardrails, submits the request for you</li>
+  <li><strong>Request new services</strong> — "We need ElastiCache, it's not in the catalogue" → raises a new service proposal for architecture review</li>
+</ul>
+
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">Example: requesting an S3 bucket via AI assistant</span>
+  </summary>
+  <div class="govuk-details__text">
+    <pre><code>Developer: "I need an S3 bucket for storing PDF receipts in production"
+
+AI: Checking platform catalogue... S3 is available.
+    Checking guardrails... buckets are private by default ✓
+    No conflicts with your requirements.
+    Shall I submit the request?
+
+Developer: "Yes"
+
+AI: Done. Issue created: github.com/.../issues/5
+    Expected provisioning time: ~2 minutes once approved.</code></pre>
+  </div>
+</details>
+
+<p class="govuk-body">Setup instructions are in the <a href="https://github.com/bv90dsit/platform-services#mcp-server" class="govuk-link">repository README</a>.</p>
+
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
 <h2 class="govuk-heading-l">Contact the team</h2>
 
 | Who | Role | Contact |

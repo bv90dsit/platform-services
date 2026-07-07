@@ -190,15 +190,14 @@ server.tool(
 
 server.tool(
   "request_service",
-  "Submit a request to the platform team to provision a service (creates a GitHub Issue)",
+  "Submit a request to provision an existing platform service (creates a GitHub Issue matching the feature-request form)",
   {
     service_id: z.string().describe("Service ID to request (e.g. 's3', 'vpc', 'eks')"),
-    team_name: z.string().describe("Your team or service name"),
-    environment: z.enum(["dev", "staging", "production"]).describe("Target environment"),
-    description: z.string().describe("What you need and why — e.g. 'S3 bucket for storing user uploads, needs versioning enabled'"),
+    description: z.string().describe("What you need and why — e.g. 'S3 bucket for storing PDF receipts, needs versioning enabled'"),
     priority: z.enum(["low", "medium", "high"]).describe("Priority: low (no deadline), medium (next few weeks), high (blocking current work)"),
+    alternatives: z.string().optional().describe("Any workarounds or alternatives you've considered"),
   },
-  async ({ service_id, team_name, environment, description, priority }) => {
+  async ({ service_id, description, priority, alternatives }) => {
     let service: Service | undefined;
     let category: Category | undefined;
 
@@ -232,25 +231,34 @@ server.tool(
       high: "High — blocking current work",
     };
 
-    const guardrailNote = service.guardrails.length > 0
-      ? `\n\n**Guardrails that apply:**\n${service.guardrails.map(g => `- ${g}`).join("\n")}`
-      : "";
+    const serviceAreaMap: Record<string, string> = {
+      networking: "Networking",
+      compute: "Compute",
+      storage: "Storage & Data",
+      security: "Security",
+    };
 
-    const issueTitle = `[Request]: ${service.name} for ${team_name} (${environment})`;
+    const issueTitle = `[Request]: ${service.name} provisioning`;
     const issueBody = [
-      `## Service request`,
+      `### Request type`,
       ``,
-      `**Service:** ${service.name}`,
-      `**Category:** ${category.name}`,
-      `**Team:** ${team_name}`,
-      `**Environment:** ${environment}`,
-      `**Priority:** ${priorityLabels[priority]}`,
-      `**Expected provisioning time:** ${service.provisioning_time}`,
+      `Enhancement to an existing service`,
       ``,
-      `## Description`,
+      `### Service area`,
+      ``,
+      serviceAreaMap[category.id] || "General / Other",
+      ``,
+      `### Description`,
       ``,
       description,
-      guardrailNote,
+      ``,
+      `### Priority`,
+      ``,
+      priorityLabels[priority],
+      ``,
+      `### Alternatives considered`,
+      ``,
+      alternatives || "_No response_",
     ].join("\n");
 
     try {
@@ -267,7 +275,6 @@ server.tool(
             ``,
             `Issue: ${result}`,
             `Service: ${service.name}`,
-            `Environment: ${environment}`,
             `Expected provisioning time: ${service.provisioning_time}`,
             ``,
             `The platform team will review your request. You'll be notified on the issue when it's actioned.`,
@@ -285,9 +292,90 @@ server.tool(
             ``,
             `Details for your request:`,
             `- Service: ${service.name}`,
-            `- Team: ${team_name}`,
-            `- Environment: ${environment}`,
             `- Description: ${description}`,
+            `- Priority: ${priorityLabels[priority]}`,
+          ].join("\n"),
+        }],
+      };
+    }
+  }
+);
+
+server.tool(
+  "request_new_service",
+  "Request a service that doesn't exist in the catalogue yet (creates a GitHub Issue matching the feature-request form with 'New service' type)",
+  {
+    service_name: z.string().describe("Name of the service you're requesting (e.g. 'ElastiCache', 'Step Functions')"),
+    service_area: z.enum(["Networking", "Compute", "Storage & Data", "Security", "CI/CD & Tooling", "General / Other"]).describe("Which area this relates to"),
+    description: z.string().describe("What you need, why you need it, and the problem it solves for your team"),
+    priority: z.enum(["low", "medium", "high"]).describe("Priority: low (no deadline), medium (next few weeks), high (blocking current work)"),
+    alternatives: z.string().optional().describe("Workarounds or alternatives you've considered"),
+  },
+  async ({ service_name, service_area, description, priority, alternatives }) => {
+    const priorityLabels: Record<string, string> = {
+      low: "Low — nice to have, no deadline",
+      medium: "Medium — needed in the next few weeks",
+      high: "High — blocking current work",
+    };
+
+    const issueTitle = `[Request]: ${service_name} (new service)`;
+    const issueBody = [
+      `### Request type`,
+      ``,
+      `New service (something not currently offered)`,
+      ``,
+      `### Service area`,
+      ``,
+      service_area,
+      ``,
+      `### Description`,
+      ``,
+      description,
+      ``,
+      `### Priority`,
+      ``,
+      priorityLabels[priority],
+      ``,
+      `### Alternatives considered`,
+      ``,
+      alternatives || "_No response_",
+    ].join("\n");
+
+    try {
+      const result = execSync(
+        `gh issue create --repo bv90dsit/platform-services --title "${issueTitle.replace(/"/g, '\\"')}" --label "new-service-proposal" --body "${issueBody.replace(/"/g, '\\"').replace(/\n/g, "\\n")}"`,
+        { encoding: "utf-8", timeout: 15000 }
+      ).trim();
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: [
+            `New service request submitted.`,
+            ``,
+            `Issue: ${result}`,
+            `Service: ${service_name}`,
+            `Area: ${service_area}`,
+            ``,
+            `New service requests go through architecture review before approval.`,
+            `The platform team will assess feasibility and update the issue with a decision.`,
+          ].join("\n"),
+        }],
+      };
+    } catch (error) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: [
+            `Failed to create issue. Ensure the 'gh' CLI is authenticated.`,
+            ``,
+            `You can manually submit here: ${catalogue.request_urls.feature_request}`,
+            ``,
+            `Details for your request:`,
+            `- Service: ${service_name}`,
+            `- Area: ${service_area}`,
+            `- Description: ${description}`,
+            `- Priority: ${priorityLabels[priority]}`,
           ].join("\n"),
         }],
       };
