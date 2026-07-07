@@ -1,0 +1,207 @@
+{
+  "catalogue_version": "1.0.0",
+  "last_updated": "2026-07-07",
+  "team": {
+    "name": "Platform Team",
+    "slack_channel": "#platform-support",
+    "office_hours": "Mon-Fri, 09:00-17:00 GMT",
+    "contacts": [
+      { "name": "Jane Smith", "role": "Platform Lead", "email": "jane.smith@example.gov.uk" },
+      { "name": "Alex Johnson", "role": "Cloud Architect", "email": "alex.johnson@example.gov.uk" },
+      { "name": "Sam Patel", "role": "DevOps Engineer", "email": "sam.patel@example.gov.uk" }
+    ]
+  },
+  "categories": [
+    {
+      "id": "networking",
+      "name": "Networking",
+      "description": "Managed networking services to connect your workloads securely",
+      "services": [
+        {
+          "id": "vpc",
+          "name": "VPC",
+          "description": "Isolated virtual networks with standard CIDR allocation",
+          "status": "available",
+          "provisioning_time": "5 minutes",
+          "guardrails": [
+            "CIDR ranges are allocated centrally to avoid conflicts",
+            "All traffic is logged and retained for 90 days"
+          ]
+        },
+        {
+          "id": "transit-gateway",
+          "name": "Transit Gateway",
+          "description": "Cross-VPC and on-premises connectivity",
+          "status": "available",
+          "provisioning_time": "15 minutes",
+          "guardrails": [
+            "Cross-account peering must go through Transit Gateway"
+          ]
+        },
+        {
+          "id": "route53",
+          "name": "Route53",
+          "description": "DNS management (public and private zones)",
+          "status": "available",
+          "provisioning_time": "2 minutes",
+          "guardrails": []
+        },
+        {
+          "id": "cloudfront",
+          "name": "CloudFront",
+          "description": "CDN for static assets and API acceleration",
+          "status": "available",
+          "provisioning_time": "10 minutes",
+          "guardrails": [
+            "Direct internet ingress requires WAF attachment"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compute",
+      "name": "Compute",
+      "description": "Managed compute services to run your applications at scale",
+      "services": [
+        {
+          "id": "ecs-fargate",
+          "name": "ECS (Fargate)",
+          "description": "Serverless containers — no infrastructure to manage",
+          "status": "available",
+          "provisioning_time": "5 minutes",
+          "guardrails": [
+            "Containers run as non-root by default",
+            "All compute must reside in private subnets"
+          ]
+        },
+        {
+          "id": "eks",
+          "name": "EKS",
+          "description": "Managed Kubernetes clusters",
+          "status": "available",
+          "provisioning_time": "20 minutes",
+          "guardrails": [
+            "All compute must reside in private subnets"
+          ]
+        },
+        {
+          "id": "lambda",
+          "name": "Lambda",
+          "description": "Event-driven serverless functions",
+          "status": "available",
+          "provisioning_time": "2 minutes",
+          "guardrails": [
+            "Lambda functions have a 15-minute timeout maximum"
+          ]
+        },
+        {
+          "id": "ec2",
+          "name": "EC2",
+          "description": "Virtual machines (for workloads that need them)",
+          "status": "available",
+          "provisioning_time": "10 minutes",
+          "guardrails": [
+            "EC2 instances must use approved AMIs",
+            "Instance types are limited to approved families (cost control)",
+            "All compute must reside in private subnets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "name": "Storage & Data",
+      "description": "Managed storage and database services for your applications",
+      "services": [
+        {
+          "id": "s3",
+          "name": "S3",
+          "description": "Object storage with encryption at rest",
+          "status": "available",
+          "provisioning_time": "2 minutes",
+          "guardrails": [
+            "S3 buckets are private by default — no public access"
+          ]
+        },
+        {
+          "id": "rds",
+          "name": "RDS",
+          "description": "Managed relational databases (PostgreSQL, MySQL)",
+          "status": "available",
+          "provisioning_time": "15 minutes",
+          "guardrails": [
+            "RDS instances must be in private subnets",
+            "Database credentials managed via Secrets Manager",
+            "Backup retention minimum: 7 days (production), 1 day (non-production)"
+          ]
+        },
+        {
+          "id": "dynamodb",
+          "name": "DynamoDB",
+          "description": "Serverless NoSQL database",
+          "status": "available",
+          "provisioning_time": "5 minutes",
+          "guardrails": []
+        },
+        {
+          "id": "efs",
+          "name": "EFS",
+          "description": "Shared file system for containers and EC2",
+          "status": "available",
+          "provisioning_time": "5 minutes",
+          "guardrails": []
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Security services to protect your workloads and meet compliance requirements",
+      "services": [
+        {
+          "id": "iam",
+          "name": "IAM",
+          "description": "Role-based access control and service accounts",
+          "status": "available",
+          "provisioning_time": "5 minutes",
+          "guardrails": [
+            "IAM policies are reviewed and constrained by permission boundaries",
+            "Root account access is prohibited"
+          ]
+        },
+        {
+          "id": "guardduty",
+          "name": "GuardDuty",
+          "description": "Threat detection and continuous monitoring",
+          "status": "available",
+          "provisioning_time": "Enabled by default",
+          "guardrails": []
+        },
+        {
+          "id": "waf",
+          "name": "WAF",
+          "description": "Web application firewall for public-facing services",
+          "status": "available",
+          "provisioning_time": "10 minutes",
+          "guardrails": [
+            "WAF is mandatory for any internet-facing endpoint"
+          ]
+        },
+        {
+          "id": "secrets-manager",
+          "name": "Secrets Manager",
+          "description": "Secure storage for credentials and API keys",
+          "status": "available",
+          "provisioning_time": "2 minutes",
+          "guardrails": [
+            "All secrets must be stored in Secrets Manager (no hardcoded credentials)"
+          ]
+        }
+      ]
+    }
+  ],
+  "request_urls": {
+    "question": "https://github.com/bv90dsit/platform-services/issues/new?template=question.yml",
+    "feature_request": "https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml"
+  }
+}

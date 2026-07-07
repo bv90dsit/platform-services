@@ -156,6 +156,47 @@ Then visit http://localhost:4000/platform-services/
 4. **Customise issue templates** — adjust the dropdowns in `.github/ISSUE_TEMPLATE/` to match your service areas
 5. **Add your branding** — the layout uses the GOV.UK Design System CSS; adjust colours or add your department's logo in `_layouts/default.html`
 
+## MCP Server
+
+An MCP (Model Context Protocol) server is included so AI assistants can query the service catalogue programmatically.
+
+### Available tools
+
+| Tool | Description |
+|------|-------------|
+| `list_services` | List all services, optionally filtered by category |
+| `get_service_details` | Get details on a specific service (guardrails, provisioning time) |
+| `get_guardrails` | List all guardrails/constraints, optionally by category |
+| `how_to_request` | Get instructions for requesting a service or asking a question |
+| `get_team_contacts` | Get platform team contact information |
+
+### Setup
+
+```bash
+cd mcp-server
+npm install
+npm run build
+```
+
+### Add to Claude Code
+
+Add to your `.claude/settings.json` or project settings:
+
+```json
+{
+  "mcpServers": {
+    "platform-services": {
+      "command": "node",
+      "args": ["/path/to/platform-services/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+### Data source
+
+The MCP server reads from `services.json` at the repository root. Update that file to change what the server exposes — no code changes needed for content updates.
+
 ## Contributing
 
 Content changes are made via pull request. Edit the relevant Markdown file, push a branch, and open a PR. The site rebuilds automatically on merge to `main`.
