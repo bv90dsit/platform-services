@@ -117,10 +117,15 @@ The platform team needs to gather content from several sources to populate the s
 
 ```
 .
+├── services.json                      # Machine-readable service catalogue (source of truth)
+├── mcp-server/                        # MCP server for AI-assisted service discovery
+│   ├── src/index.ts                   # Server implementation
+│   ├── package.json
+│   └── tsconfig.json
 ├── _config.yml                        # Jekyll configuration
 ├── _layouts/
 │   └── default.html                   # GOV.UK Design System layout
-├── _services/                         # Service catalogue (one file per category)
+├── _services/                         # Service catalogue pages (one per category)
 │   ├── networking.md
 │   ├── compute.md
 │   ├── storage.md
@@ -158,7 +163,91 @@ Then visit http://localhost:4000/platform-services/
 
 ## MCP Server
 
-An MCP (Model Context Protocol) server is included so AI assistants can query the service catalogue programmatically.
+An MCP (Model Context Protocol) server is included so AI assistants can query the service catalogue, check guardrails, and submit provisioning requests — all without leaving the IDE.
+
+### Use case: "I need an S3 bucket"
+
+A developer on the Payments team needs an S3 bucket for storing transaction receipts. Here's what happens when they ask their AI assistant:
+
+```
+Developer: "I need an S3 bucket for my team to store PDF receipts. 
+            It needs to be in production with versioning."
+
+AI Assistant: [calls check_service_compatibility]
+              → Checks guardrails: "S3 buckets are private by default — no public access" ✓
+              → No conflicts with your requirements
+              → Notes: encryption at rest enabled by default, bucket policy scoped to your team
+
+AI Assistant: "S3 is available and your requirements are compatible with platform 
+              guardrails. Provisioning takes ~2 minutes. Shall I submit the request?"
+
+Developer: "Yes, go ahead."
+
+AI Assistant: [calls request_service]
+              → Creates GitHub Issue: "[Request]: S3 for payments-team (production)"
+              → Issue includes: service details, guardrails, team, environment, description
+
+AI Assistant: "Done. Request submitted: https://github.com/.../issues/4
+              The platform team will provision it — expected time ~2 minutes once approved."
+```
+
+**Without MCP**, that same developer would need to:
+1. Open the platform services website
+2. Find the storage page, read about S3
+3. Check guardrails manually
+4. Navigate to GitHub Issues
+5. Fill in the form template from scratch
+6. Wait and hope they didn't miss a constraint
+
+**With MCP**, the AI assistant handles discovery, compliance checking, and request submission in one conversation. The developer never leaves their terminal.
+
+### How it works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Developer's IDE / Terminal                                  │
+│                                                             │
+│  "I need an S3 bucket for storing receipts"                 │
+│       │                                                     │
+│       ▼                                                     │
+│  ┌─────────────────────────────────────┐                    │
+│  │  AI Assistant (Claude Code, etc.)   │                    │
+│  │                                     │                    │
+│  │  1. check_service_compatibility     │◄──┐               │
+│  │     → "Are there guardrail issues?" │   │               │
+│  │                                     │   │  MCP Protocol  │
+│  │  2. request_service                 │   │  (stdio)       │
+│  │     → "Submit the request"          │───┘               │
+│  └─────────────────────────────────────┘                    │
+│                                                             │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│  MCP Server (platform-services-mcp)                         │
+│                                                             │
+│  ┌───────────────┐  ┌─────────────────┐  ┌──────────────┐  │
+│  │ services.json │  │ Guardrail logic │  │ gh CLI       │  │
+│  │ (catalogue)   │──│ (compatibility  │──│ (issue       │  │
+│  │               │  │  checking)      │  │  creation)   │  │
+│  └───────────────┘  └─────────────────┘  └──────┬───────┘  │
+│                                                  │          │
+└──────────────────────────────────────────────────┼──────────┘
+                                                   │
+                                                   ▼
+┌─────────────────────────────────────────────────────────────┐
+│  GitHub                                                     │
+│                                                             │
+│  Issue #4: "[Request]: S3 for payments-team (production)"   │
+│  Labels: enhancement                                        │
+│  Body: service details, guardrails, description             │
+│                                                             │
+│       │                                                     │
+│       ▼                                                     │
+│  Platform team triages → provisions → notifies developer    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ### Available tools
 
@@ -167,7 +256,9 @@ An MCP (Model Context Protocol) server is included so AI assistants can query th
 | `list_services` | List all services, optionally filtered by category |
 | `get_service_details` | Get details on a specific service (guardrails, provisioning time) |
 | `get_guardrails` | List all guardrails/constraints, optionally by category |
-| `how_to_request` | Get instructions for requesting a service or asking a question |
+| `check_service_compatibility` | Check if requirements conflict with guardrails before requesting |
+| `request_service` | Submit a provisioning request (creates a GitHub Issue via `gh` CLI) |
+| `how_to_request` | Get instructions for manual requests |
 | `get_team_contacts` | Get platform team contact information |
 
 ### Setup
@@ -193,9 +284,38 @@ Add to your `.claude/settings.json` or project settings:
 }
 ```
 
+### Prerequisites for `request_service`
+
+The `request_service` tool uses the GitHub CLI (`gh`) to create issues. The machine running the MCP server needs:
+- `gh` installed and authenticated (`gh auth login`)
+- Write access to the `bv90dsit/platform-services` repository
+
+If `gh` is not available, the tool gracefully falls back to providing the manual request URL and pre-filled details.
+
 ### Data source
 
-The MCP server reads from `services.json` at the repository root. Update that file to change what the server exposes — no code changes needed for content updates.
+The MCP server reads from `services.json` at the repository root. To add or update services, edit that file — no code changes needed. The structure is:
+
+```json
+{
+  "categories": [
+    {
+      "id": "storage",
+      "name": "Storage & Data",
+      "services": [
+        {
+          "id": "s3",
+          "name": "S3",
+          "description": "Object storage with encryption at rest",
+          "status": "available",
+          "provisioning_time": "2 minutes",
+          "guardrails": ["S3 buckets are private by default — no public access"]
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## Contributing
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cataloguePath = join(__dirname, "../../services.json");
@@ -181,6 +182,204 @@ server.tool(
       ``,
       `Contacts:`,
       ...contacts,
+    ].join("\n");
+
+    return { content: [{ type: "text" as const, text }] };
+  }
+);
+
+server.tool(
+  "request_service",
+  "Submit a request to the platform team to provision a service (creates a GitHub Issue)",
+  {
+    service_id: z.string().describe("Service ID to request (e.g. 's3', 'vpc', 'eks')"),
+    team_name: z.string().describe("Your team or service name"),
+    environment: z.enum(["dev", "staging", "production"]).describe("Target environment"),
+    description: z.string().describe("What you need and why — e.g. 'S3 bucket for storing user uploads, needs versioning enabled'"),
+    priority: z.enum(["low", "medium", "high"]).describe("Priority: low (no deadline), medium (next few weeks), high (blocking current work)"),
+  },
+  async ({ service_id, team_name, environment, description, priority }) => {
+    let service: Service | undefined;
+    let category: Category | undefined;
+
+    for (const cat of catalogue.categories) {
+      const found = cat.services.find(
+        (s: Service) => s.id === service_id || s.name.toLowerCase() === service_id.toLowerCase()
+      );
+      if (found) {
+        service = found;
+        category = cat;
+        break;
+      }
+    }
+
+    if (!service || !category) {
+      const allIds = catalogue.categories.flatMap((c: Category) => c.services.map((s: Service) => s.id));
+      return {
+        content: [{ type: "text" as const, text: `Service "${service_id}" not found. Available: ${allIds.join(", ")}` }],
+      };
+    }
+
+    if (service.status !== "available") {
+      return {
+        content: [{ type: "text" as const, text: `Service "${service.name}" is not currently available (status: ${service.status}).` }],
+      };
+    }
+
+    const priorityLabels: Record<string, string> = {
+      low: "Low — nice to have, no deadline",
+      medium: "Medium — needed in the next few weeks",
+      high: "High — blocking current work",
+    };
+
+    const guardrailNote = service.guardrails.length > 0
+      ? `\n\n**Guardrails that apply:**\n${service.guardrails.map(g => `- ${g}`).join("\n")}`
+      : "";
+
+    const issueTitle = `[Request]: ${service.name} for ${team_name} (${environment})`;
+    const issueBody = [
+      `## Service request`,
+      ``,
+      `**Service:** ${service.name}`,
+      `**Category:** ${category.name}`,
+      `**Team:** ${team_name}`,
+      `**Environment:** ${environment}`,
+      `**Priority:** ${priorityLabels[priority]}`,
+      `**Expected provisioning time:** ${service.provisioning_time}`,
+      ``,
+      `## Description`,
+      ``,
+      description,
+      guardrailNote,
+    ].join("\n");
+
+    try {
+      const result = execSync(
+        `gh issue create --repo bv90dsit/platform-services --title "${issueTitle.replace(/"/g, '\\"')}" --label "enhancement" --body "${issueBody.replace(/"/g, '\\"').replace(/\n/g, "\\n")}"`,
+        { encoding: "utf-8", timeout: 15000 }
+      ).trim();
+
+      return {
+        content: [{
+          type: "text" as const,
+          text: [
+            `Request submitted successfully.`,
+            ``,
+            `Issue: ${result}`,
+            `Service: ${service.name}`,
+            `Environment: ${environment}`,
+            `Expected provisioning time: ${service.provisioning_time}`,
+            ``,
+            `The platform team will review your request. You'll be notified on the issue when it's actioned.`,
+          ].join("\n"),
+        }],
+      };
+    } catch (error) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: [
+            `Failed to create issue. Ensure the 'gh' CLI is authenticated.`,
+            ``,
+            `You can manually submit here: ${catalogue.request_urls.feature_request}`,
+            ``,
+            `Details for your request:`,
+            `- Service: ${service.name}`,
+            `- Team: ${team_name}`,
+            `- Environment: ${environment}`,
+            `- Description: ${description}`,
+          ].join("\n"),
+        }],
+      };
+    }
+  }
+);
+
+server.tool(
+  "check_service_compatibility",
+  "Check if a service request is compatible with platform guardrails and suggest configuration",
+  {
+    service_id: z.string().describe("Service ID to check (e.g. 's3', 'rds', 'ec2')"),
+    requirements: z.string().describe("Describe what you need — e.g. 'public-facing bucket for static website hosting'"),
+  },
+  async ({ service_id, requirements }) => {
+    let service: Service | undefined;
+    let category: Category | undefined;
+
+    for (const cat of catalogue.categories) {
+      const found = cat.services.find(
+        (s: Service) => s.id === service_id || s.name.toLowerCase() === service_id.toLowerCase()
+      );
+      if (found) {
+        service = found;
+        category = cat;
+        break;
+      }
+    }
+
+    if (!service || !category) {
+      const allIds = catalogue.categories.flatMap((c: Category) => c.services.map((s: Service) => s.id));
+      return {
+        content: [{ type: "text" as const, text: `Service "${service_id}" not found. Available: ${allIds.join(", ")}` }],
+      };
+    }
+
+    const guardrails = service.guardrails;
+    const requirementsLower = requirements.toLowerCase();
+
+    const conflicts: string[] = [];
+    const notes: string[] = [];
+
+    if (service.id === "s3") {
+      if (requirementsLower.includes("public")) {
+        const rule = guardrails.find(g => g.toLowerCase().includes("private by default"));
+        if (rule) {
+          conflicts.push(`Your request mentions public access, but: "${rule}". You'll need to discuss this with the platform team — consider using CloudFront in front of a private bucket instead.`);
+        }
+      }
+      notes.push("Encryption at rest is enabled by default (SSE-S3)");
+      notes.push("Bucket policies are scoped to your team's IAM roles");
+    }
+
+    if (service.id === "rds") {
+      if (requirementsLower.includes("public") || requirementsLower.includes("internet")) {
+        const rule = guardrails.find(g => g.toLowerCase().includes("private subnet"));
+        if (rule) {
+          conflicts.push(`Your request mentions public/internet access, but: "${rule}". Databases are never directly exposed to the internet.`);
+        }
+      }
+      notes.push("Credentials will be stored in Secrets Manager and rotated automatically");
+      notes.push("Automated backups are configured based on environment tier");
+    }
+
+    if (service.id === "ec2") {
+      if (requirementsLower.includes("custom ami") || requirementsLower.includes("own ami")) {
+        const rule = guardrails.find(g => g.toLowerCase().includes("approved ami"));
+        if (rule) {
+          conflicts.push(`Your request mentions a custom AMI, but: "${rule}". Raise a request to have your AMI added to the approved list.`);
+        }
+      }
+    }
+
+    if (guardrails.length > 0 && conflicts.length === 0) {
+      notes.push("No conflicts detected with current guardrails");
+    }
+
+    const text = [
+      `Compatibility check: ${service.name}`,
+      ``,
+      `Your requirements: ${requirements}`,
+      ``,
+      conflicts.length > 0 ? `⚠ Potential conflicts:` : `✓ No guardrail conflicts detected`,
+      ...conflicts.map(c => `  - ${c}`),
+      ``,
+      `Notes:`,
+      ...notes.map(n => `  - ${n}`),
+      ``,
+      `Guardrails for ${service.name}:`,
+      ...(guardrails.length > 0 ? guardrails.map(g => `  - ${g}`) : ["  None specified"]),
+      ``,
+      `Ready to proceed? Use the 'request_service' tool to submit your request.`,
     ].join("\n");
 
     return { content: [{ type: "text" as const, text }] };
