@@ -2,14 +2,13 @@
 layout: default
 title: Security
 nav_order: 4
-parent: Services
 ---
 
-# Security
+<h1 class="govuk-heading-xl">Security</h1>
 
-Security services to protect your workloads and meet compliance requirements.
+<p class="govuk-body-l">Security services to protect your workloads and meet compliance requirements.</p>
 
-## Available services
+<h2 class="govuk-heading-l">Available services</h2>
 
 | Service | Description | Provisioning time |
 |---------|-------------|-------------------|
@@ -18,22 +17,24 @@ Security services to protect your workloads and meet compliance requirements.
 | WAF | Web application firewall for public-facing services | ~10 minutes |
 | Secrets Manager | Secure storage for credentials and API keys | ~2 minutes |
 
-## What's included
+<h2 class="govuk-heading-l">What's included</h2>
 
-- Least-privilege IAM roles scoped to your workload
-- Centralised threat detection across all accounts
-- WAF rule sets aligned to OWASP Top 10
-- Automatic secret rotation where supported
-- Security Hub findings surfaced to your team
+<ul class="govuk-list govuk-list--bullet">
+  <li>Least-privilege IAM roles scoped to your workload</li>
+  <li>Centralised threat detection across all accounts</li>
+  <li>WAF rule sets aligned to OWASP Top 10</li>
+  <li>Automatic secret rotation where supported</li>
+  <li>Security Hub findings surfaced to your team</li>
+</ul>
 
-## Guardrails
+<h2 class="govuk-heading-l">Guardrails</h2>
 
-- IAM policies are reviewed and constrained by permission boundaries
-- Root account access is prohibited
-- All secrets must be stored in Secrets Manager (no hardcoded credentials)
-- WAF is mandatory for any internet-facing endpoint
-- Security findings must be triaged within SLA (Critical: 24h, High: 72h)
+<ul class="govuk-list govuk-list--bullet">
+  <li>IAM policies are reviewed and constrained by permission boundaries</li>
+  <li>Root account access is prohibited</li>
+  <li>All secrets must be stored in Secrets Manager (no hardcoded credentials)</li>
+  <li>WAF is mandatory for any internet-facing endpoint</li>
+  <li>Security findings must be triaged within SLA (Critical: 24h, High: 72h)</li>
+</ul>
 
-## How to request
-
-[Request security services](https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml){: .btn .btn-primary }
+<a href="https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml" role="button" draggable="false" class="govuk-button" data-module="govuk-button">Request security services</a>

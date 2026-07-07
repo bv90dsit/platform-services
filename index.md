@@ -1,49 +1,50 @@
 ---
 layout: default
 title: Home
-nav_order: 1
 ---
 
-# Platform Services
+<h1 class="govuk-heading-xl">Platform Services</h1>
 
-Welcome to the Platform Team's service catalogue. We provide self-service AWS infrastructure that is secure, compliant, and production-ready.
+<p class="govuk-body-l">Welcome to the Platform Team's service catalogue. We provide self-service AWS infrastructure that is secure, compliant, and production-ready.</p>
 
----
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-## What we offer
+<h2 class="govuk-heading-l">What we offer</h2>
 
-Our platform provides managed AWS services across four key areas:
+<p class="govuk-body">Our platform provides managed AWS services across four key areas:</p>
 
 | Category | Services | Status |
 |----------|----------|--------|
-| [Networking](/platform-services/services/networking/) | VPC, Transit Gateway, Route53, CloudFront | Available |
-| [Compute](/platform-services/services/compute/) | ECS, EKS, Lambda, EC2 | Available |
-| [Storage & Data](/platform-services/services/storage/) | S3, RDS, DynamoDB, EFS | Available |
-| [Security](/platform-services/services/security/) | IAM, GuardDuty, WAF, Secrets Manager | Available |
+| [Networking]({{ site.baseurl }}/services/networking/) | VPC, Transit Gateway, Route53, CloudFront | Available |
+| [Compute]({{ site.baseurl }}/services/compute/) | ECS, EKS, Lambda, EC2 | Available |
+| [Storage & Data]({{ site.baseurl }}/services/storage/) | S3, RDS, DynamoDB, EFS | Available |
+| [Security]({{ site.baseurl }}/services/security/) | IAM, GuardDuty, WAF, Secrets Manager | Available |
 
----
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-## Getting started
+<h2 class="govuk-heading-l">Getting started</h2>
 
-New to the platform? Head to our [Getting Started guide](/platform-services/getting-started/) to learn how to onboard your team.
+<p class="govuk-body">New to the platform? Head to our <a href="{{ site.baseurl }}/getting-started/" class="govuk-link">Getting Started guide</a> to learn how to onboard your team.</p>
 
----
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-## Need help?
+<h2 class="govuk-heading-l">Need help?</h2>
 
-- **Have a question?** [Raise a question](https://github.com/bv90dsit/platform-services/issues/new?template=question.yml) and we'll get back to you
-- **Want a new feature or service?** [Submit a feature request](https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml)
-- **Something broken?** [Report an issue](https://github.com/bv90dsit/platform-services/issues/new?template=question.yml)
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Have a question?</strong> <a href="https://github.com/bv90dsit/platform-services/issues/new?template=question.yml" class="govuk-link">Raise a question</a> and we'll get back to you</li>
+  <li><strong>Want a new feature or service?</strong> <a href="https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml" class="govuk-link">Submit a feature request</a></li>
+  <li><strong>Something broken?</strong> <a href="https://github.com/bv90dsit/platform-services/issues/new?template=question.yml" class="govuk-link">Report an issue</a></li>
+</ul>
 
----
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-## How we work
+<h2 class="govuk-heading-l">How we work</h2>
 
-We follow a self-service model. You request what you need, we provision it within guardrails that keep things secure and cost-effective. Most services are available within minutes via our Terraform modules.
+<p class="govuk-body">We follow a self-service model. You request what you need, we provision it within guardrails that keep things secure and cost-effective. Most services are available within minutes via our Terraform modules.</p>
 
----
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-## Contact the team
+<h2 class="govuk-heading-l">Contact the team</h2>
 
 | Who | Role | Contact |
 |-----|------|---------|
@@ -52,6 +53,6 @@ We follow a self-service model. You request what you need, we provision it withi
 | Alex Johnson | Cloud Architect | alex.johnson@example.gov.uk |
 | Sam Patel | DevOps Engineer | sam.patel@example.gov.uk |
 
-**Office hours:** Mon–Fri, 09:00–17:00 GMT
+<p class="govuk-body"><strong>Office hours:</strong> Mon–Fri, 09:00–17:00 GMT</p>
 
-For urgent production issues outside office hours, use the on-call pager via #platform-support.
+<p class="govuk-body">For urgent production issues outside office hours, use the on-call pager via #platform-support.</p>

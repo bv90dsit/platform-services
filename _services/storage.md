@@ -2,14 +2,13 @@
 layout: default
 title: Storage & Data
 nav_order: 3
-parent: Services
 ---
 
-# Storage & Data
+<h1 class="govuk-heading-xl">Storage & Data</h1>
 
-Managed storage and database services for your applications.
+<p class="govuk-body-l">Managed storage and database services for your applications.</p>
 
-## Available services
+<h2 class="govuk-heading-l">Available services</h2>
 
 | Service | Description | Provisioning time |
 |---------|-------------|-------------------|
@@ -18,22 +17,24 @@ Managed storage and database services for your applications.
 | DynamoDB | Serverless NoSQL database | ~5 minutes |
 | EFS | Shared file system for containers and EC2 | ~5 minutes |
 
-## What's included
+<h2 class="govuk-heading-l">What's included</h2>
 
-- Encryption at rest and in transit by default
-- Automated backups with configurable retention
-- Multi-AZ deployment for production workloads
-- IAM-based access control (no shared credentials)
-- Monitoring and alerting on storage capacity and performance
+<ul class="govuk-list govuk-list--bullet">
+  <li>Encryption at rest and in transit by default</li>
+  <li>Automated backups with configurable retention</li>
+  <li>Multi-AZ deployment for production workloads</li>
+  <li>IAM-based access control (no shared credentials)</li>
+  <li>Monitoring and alerting on storage capacity and performance</li>
+</ul>
 
-## Guardrails
+<h2 class="govuk-heading-l">Guardrails</h2>
 
-- S3 buckets are private by default — no public access
-- RDS instances must be in private subnets
-- Database credentials managed via Secrets Manager
-- Backup retention minimum: 7 days (production), 1 day (non-production)
-- Cross-region replication available on request
+<ul class="govuk-list govuk-list--bullet">
+  <li>S3 buckets are private by default — no public access</li>
+  <li>RDS instances must be in private subnets</li>
+  <li>Database credentials managed via Secrets Manager</li>
+  <li>Backup retention minimum: 7 days (production), 1 day (non-production)</li>
+  <li>Cross-region replication available on request</li>
+</ul>
 
-## How to request
-
-[Request storage services](https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml){: .btn .btn-primary }
+<a href="https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml" role="button" draggable="false" class="govuk-button" data-module="govuk-button">Request storage services</a>
