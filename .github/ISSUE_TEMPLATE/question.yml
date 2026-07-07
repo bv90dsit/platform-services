@@ -1,0 +1,42 @@
+name: Ask a Question
+description: Ask the platform team a question about our services
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reaching out! We'll get back to you within 1 working day.
+
+  - type: dropdown
+    id: service-area
+    attributes:
+      label: Service area
+      description: Which service area does your question relate to?
+      options:
+        - Networking (VPC, Transit Gateway, Route53, CloudFront)
+        - Compute (ECS, EKS, Lambda, EC2)
+        - Storage & Data (S3, RDS, DynamoDB, EFS)
+        - Security (IAM, GuardDuty, WAF, Secrets Manager)
+        - Onboarding / Getting started
+        - General / Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What would you like to know?
+      placeholder: Describe your question in as much detail as possible
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Any relevant background (your team, what you're trying to achieve, etc.)
+      placeholder: Optional — but helps us give a better answer
+    validations:
+      required: false

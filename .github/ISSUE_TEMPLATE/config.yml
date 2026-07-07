@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Platform documentation
+    url: https://bv90dsit.github.io/platform-services/
+    about: Check our documentation before raising an issue
+  - name: FAQ
+    url: https://bv90dsit.github.io/platform-services/faq/
+    about: Common questions answered here

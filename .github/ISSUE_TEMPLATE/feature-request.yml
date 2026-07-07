@@ -1,0 +1,68 @@
+name: Feature or Service Request
+description: Request a new service, feature, or enhancement to the platform
+title: "[Request]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your request! We review submissions weekly and will update this issue with a decision.
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Request type
+      description: What kind of request is this?
+      options:
+        - New service (something not currently offered)
+        - Enhancement to an existing service
+        - New environment or account
+        - Access or permissions change
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: service-area
+    attributes:
+      label: Service area
+      description: Which area does this relate to?
+      options:
+        - Networking
+        - Compute
+        - Storage & Data
+        - Security
+        - CI/CD & Tooling
+        - General / Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What do you need and why?
+      placeholder: Describe what you're looking for and the problem it solves for your team
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this for your team?
+      options:
+        - Low — nice to have, no deadline
+        - Medium — needed in the next few weeks
+        - High — blocking current work
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you looked at any workarounds or alternatives?
+      placeholder: Optional — helps us understand the landscape
+    validations:
+      required: false

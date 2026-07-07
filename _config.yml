@@ -1,0 +1,29 @@
+title: Platform Services
+description: Discover and onboard to our AWS platform services
+remote_theme: just-the-docs/just-the-docs
+
+url: "https://bv90dsit.github.io"
+baseurl: "/platform-services"
+
+aux_links:
+  "Request a Service":
+    - "https://github.com/bv90dsit/platform-services/issues/new?template=feature-request.yml"
+  "Ask a Question":
+    - "https://github.com/bv90dsit/platform-services/issues/new?template=question.yml"
+
+collections:
+  services:
+    output: true
+    permalink: /services/:name/
+
+defaults:
+  - scope:
+      path: "_services"
+      type: "services"
+    values:
+      layout: "default"
+
+nav_order: 1
+
+plugins:
+  - jekyll-remote-theme
